@@ -38,7 +38,7 @@ export default {
             this.axios.post(api, this.user).then((response) => {
                 console.log('data', response.data);
                 if(response.data.success) {
-                    this.$router.push('/');
+                    this.$router.push('/admin/products');
                 }
             });
         }
