@@ -1,5 +1,6 @@
 <template>
     <div>
+        <loading :active.sync="isLoading"></loading>
         <div class="text-right mt-4">
             <button class="btn btn-primary" @click="openModal(true)">建立新的產品</button>         
         </div>
@@ -62,7 +63,8 @@
                         </div>
                         <div class="form-group">
                         <label for="customFile">或 上傳圖片
-                            <i class="fas fa-spinner fa-spin"></i>
+                            <i class="fas fa-spinner fa-spin" 
+                            v-if="status.fileUploading"></i>
                         </label>
                         <input type="file" id="customFile" class="form-control"
                             ref="files" @change="uploadFile">
@@ -182,7 +184,11 @@ export default {
         return {
             products: [],
             tempProduct: {},
-            isNew: false
+            isNew: false,
+            isLoading: false,
+            status: {
+                fileUploading: false
+            }
         };
     },
     methods: {
@@ -206,12 +212,13 @@ export default {
             const formData = new FormData();
             formData.append('file-to-upload', uploadedFile);
             const url = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/admin/upload`;
+            this.status.fileUploading = true;
             this.axios.post(url, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
             }).then(response => {
-                console.log(response.data);
+                this.status.fileUploading = false;
                 if(response.data.success) {
                     this.$set(this.tempProduct, 'imageUrl', response.data.imageUrl);
                     console.log(this.tempProduct);
@@ -219,8 +226,10 @@ export default {
             });
         },        
         getProducts() {
+            this.isLoading = true;
             const api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/products`;
             this.axios.get(api).then((response) => {
+                this.isLoading = false;
                 this.products = response.data.products;
             });
         },
