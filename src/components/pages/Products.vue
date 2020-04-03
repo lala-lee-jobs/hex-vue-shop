@@ -39,6 +39,28 @@
                 </tr>
             </tbody>
         </table>
+        <nav aria-label="Page navigation example">
+        <ul class="pagination">
+            <li class="page-item" 
+                :class="{'disabled':!pagination.has_pre}"
+                @click.prevent="getProducts(pagination.current_page - 1)">
+                <a class="page-link" href="#" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            <li class="page-item" v-for="page in pagination.total_pages" :key="page"
+                :class="{'active': pagination.current_page === page}">
+                <a class="page-link" href="#" @click.prevent="getProducts(page)">{{page}}</a>
+            </li>
+            <li class="page-item" 
+                :class="{'disabled':!pagination.has_next}"
+                @click.prevent="getProducts(pagination.current_page + 1)">
+                <a class="page-link" href="#" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+        </nav>        
         <!-- Modal -->
         <div class="modal fade" id="productModal" tabindex="-1" role="dialog"
         aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -183,6 +205,7 @@ export default {
     data() {
         return {
             products: [],
+            pagination: {},
             tempProduct: {},
             isNew: false,
             isLoading: false,
@@ -226,12 +249,13 @@ export default {
                 }
             });
         },        
-        getProducts() {
+        getProducts(page = 1) {
             this.isLoading = true;
-            const api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/products`;
+            const api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/products?page=${page}`;
             this.axios.get(api).then((response) => {
                 this.isLoading = false;
                 this.products = response.data.products;
+                this.pagination = response.data.pagination;
             });
         },
         delProduct(productid) {
