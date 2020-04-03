@@ -221,7 +221,8 @@ export default {
                 this.status.fileUploading = false;
                 if(response.data.success) {
                     this.$set(this.tempProduct, 'imageUrl', response.data.imageUrl);
-                    console.log(this.tempProduct);
+                } else {
+                    this.$bus.$emit('message:push', response.data.message, 'danger');
                 }
             });
         },        

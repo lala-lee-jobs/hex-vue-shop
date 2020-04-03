@@ -7,6 +7,7 @@ import 'bootstrap';
 
 import App from './App';
 import router from './router';
+import './bus';
 
 import Loading from 'vue-loading-overlay';
 import 'vue-loading-overlay/dist/vue-loading.css';
