@@ -39,28 +39,7 @@
                 </tr>
             </tbody>
         </table>
-        <nav aria-label="Page navigation example">
-        <ul class="pagination">
-            <li class="page-item" 
-                :class="{'disabled':!pagination.has_pre}"
-                @click.prevent="getProducts(pagination.current_page - 1)">
-                <a class="page-link" href="#" aria-label="Previous">
-                    <span aria-hidden="true">&laquo;</span>
-                </a>
-            </li>
-            <li class="page-item" v-for="page in pagination.total_pages" :key="page"
-                :class="{'active': pagination.current_page === page}">
-                <a class="page-link" href="#" @click.prevent="getProducts(page)">{{page}}</a>
-            </li>
-            <li class="page-item" 
-                :class="{'disabled':!pagination.has_next}"
-                @click.prevent="getProducts(pagination.current_page + 1)">
-                <a class="page-link" href="#" aria-label="Next">
-                    <span aria-hidden="true">&raquo;</span>
-                </a>
-            </li>
-        </ul>
-        </nav>        
+        <Pagination :pagination="pagination" @change="changePage"/>      
         <!-- Modal -->
         <div class="modal fade" id="productModal" tabindex="-1" role="dialog"
         aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -200,8 +179,12 @@
 </template>
 <script>
 import $ from 'jquery';
+import Pagination from './../Pagination';
 
 export default {
+    components: {
+        Pagination
+    },
     data() {
         return {
             products: [],
@@ -215,6 +198,9 @@ export default {
         };
     },
     methods: {
+        changePage(page) {
+            this.getProducts(page);
+        },
         openDelModal(item){
             this.tempProduct = Object.assign({}, item);
             $('#delProductModal').modal('show');
