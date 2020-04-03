@@ -11,6 +11,7 @@
                 <th width="120">售價</th>
                 <th width="100">是否啟用</th>
                 <th width="80">編輯</th>
+                <th width="80">刪除</th>
             </thead>
             <tbody>
                 <tr v-for="(item, index) in products" :key="item.id">
@@ -29,7 +30,11 @@
                     <td>
                         <button class="btn btn-outline-primary btn-sm" 
                         @click="openModal(false,item)">編輯</button>
-                    </td>                 
+                    </td>
+                    <td>
+                        <button class="btn btn-outline-danger btn-sm" 
+                        @click="openDelModal(item)">刪除</button>
+                    </td>                    
                 </tr>
             </tbody>
         </table>
@@ -144,6 +149,29 @@
                 </div>
             </div>
         </div>
+        <div class="modal fade" id="delProductModal" tabindex="-1" role="dialog"
+        aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content border-0">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="exampleModalLabel">
+                    <span>刪除產品</span>
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    是否刪除 <strong class="text-danger">{{ tempProduct.title }}</strong> 商品(刪除後將無法恢復)。
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-danger"
+                    @click="delProduct(tempProduct.id)">確認刪除</button>
+                </div>
+                </div>
+            </div>
+        </div>        
     </div>
 </template>
 <script>
@@ -158,6 +186,10 @@ export default {
         };
     },
     methods: {
+        openDelModal(item){
+            this.tempProduct = Object.assign({}, item);
+            $('#delProductModal').modal('show');
+        },
         openModal(isNew, item) {
             if (isNew) {
                 this.tempProduct = {};
@@ -171,8 +203,17 @@ export default {
         getProducts() {
             const api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/products`;
             this.axios.get(api).then((response) => {
-                console.log('data', response.data);
                 this.products = response.data.products;
+            });
+        },
+        delProduct(productid) {
+            const api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/admin/product/${productid}`;
+            this.axios.delete(api).then((response) => {
+                if(!response.data.success) {
+                    console.log('刪除失敗');
+                }
+                $('#delProductModal').modal('hide');
+                this.getProducts();
             });
         },
         updateProduct() {
@@ -183,16 +224,11 @@ export default {
                 httpMethod = 'put';
             }
             this.axios[httpMethod](api, {data: this.tempProduct}).then((response) => {
-                console.log('data', response.data);
-                // this.products = response.data.products;
-                if(response.data.success) {
-                    $('#productModal').modal('hide');
-                    this.getProducts();
-                } else {
-                    $('#productModal').modal('hide');
-                    this.getProducts();                    
+                if(!response.data.success) {
                     console.log('新增失敗');
                 }
+                $('#productModal').modal('hide');
+                this.getProducts();
             });        
         }
     },
